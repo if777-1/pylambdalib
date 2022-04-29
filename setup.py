@@ -1,7 +1,7 @@
 from setuptools import find_packages
 from setuptools import setup
 setup(
-name='pylambdalib',
+name='lambdapylib',
 version='1.0.0',
 description='Python package for Lambda Solution operations',
 url='#',
