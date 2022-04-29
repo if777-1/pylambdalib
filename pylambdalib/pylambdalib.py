@@ -147,7 +147,7 @@ class Val(ElementValue):
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.var == other.var
     def __str__(self):
-        return f'{self.unixtime}:{self.val}|{self.var}|0'
+        return f'{self.unixtime}:{self.var}|{self.val}|0'
 
 class Ocfg(ElementValue):
     def __init__(self,s=''):
@@ -262,8 +262,19 @@ class Sidx(ElementValue):
         super(Sidx, self).__init__()
         self.value = ''
         self.key = Key()
+        self.company_id = ''
+        self.variable = ''
         if s != '':
             self.parse(s)
+
+    def parse_sidx_key(self,s):
+        fp = s.index('.')
+        sp = s.index('.',fp+1)
+        self.company_id = s[:fp]
+        self.variable = s[fp+1:sp]
+
+    def get_sidx_key(self):
+        return f'{self.company_id}.{self.variable}.sidx'
 
     def parse(self, s):
         s = check_quotes(s)
