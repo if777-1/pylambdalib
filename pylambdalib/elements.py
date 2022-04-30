@@ -1,51 +1,63 @@
 from abc import ABC, abstractmethod
 from shapely.geometry import Polygon, Point
 
-class Key:
-    def __init__(self,s=''):
-        self.company_id = ''
-        self.network_id = ''
-        self.object_id = ''
-        if s != '':
-            self.parse(s)
+class Key(str):
+    def get_company_id(self):
+        return self[:self.index('.')]
+    def get_network_id(self):
+        return self[self.index('.')+1:self.index('.',self.index('.')+1)]
+    def get_object_id(self):
+        return self[self.index('.',self.index('.')+1)+1:]
+    def set_company_id(self,company_id):
+        return Key(str(company_id) + self[self.index('.'):])
+    def set_network_id(self,network_id):
+        return Key(self.get_company_id() + "." + str(network_id) + "." +self.get_object_id())
+    def set_object_id(self,object_id):
+        return Key(self[:self.index('.',self.index('.')+1)] + "." + str(object_id))
     def get_geoidx_key(self):
-        return f'{self.company_id}.{self.network_id}:geoidx'
-    def parse(self,s): ##c_id.n_id.o_id
-        fp = s.index('.')
-        sp = s.index('.',fp+1)
-        self.company_id = int(s[:fp])
-        self.network_id = int(s[fp+1:sp])
-        self.object_id = int(s[sp+1:])
-    def __str__(self):
-        return f'{self.company_id}.{self.network_id}.{self.object_id}'
-    def __eq__(self, other):
-        return str(self) == str(other)
-    def __hash__(self):
-        return hash(str(self))
-    ##implement gd, ld, ge, le
+        return self[:self.index('.',self.index('.')+1)]+':geoidx'
+    def __gd__(self,other):
+        c_id = self.get_company_id()
+        o_c_id = other.get_company_id()
+        if c_id > o_c_id:
+            return True
+        elif c_id < o_c_id:
+            return False
+        else:
+            n_id = int(self.get_network_id())
+            o_n_id = int(other.get_network_id())
+            if n_id > o_n_id:
+                return True
+            elif n_id < o_n_id:
+                return False
+            else:
+                o_id = int(self.get_object_id())
+                o_o_id = int(other.get_object_id())
+                if o_id > o_o_id:
+                    return True
+                else:
+                    return False
+    def __ld__(self,other):
+        return not self.__gd__(other)
 
-class Unixtime:
-    def __init__(self):
-        self.unixtime_up = ''
-        self.unixtime_down = ''
-        self.log_up = ''
-        self.log_down = ''
-    def parse(self,s):
-        fp = s.index('.')
-        sp = s.index('.',fp+1)
-        tp = s.index('.',sp+1)
-        self.unixtime_up = s[:fp]
-        self.unixtime_down = s[fp+1:sp]
-        self.log_up = s[sp+1:tp]
-        self.log_down = s[tp+1:]
+class Unixtime(str):
+    def get_unixtime_up(self):
+        return self[:self.index('.')]
+    def get_unixtime_down(self):
+        fp = self.index('.')
+        return self[fp+1:self.index('.',fp+1)]
+    def get_log_up(self):
+        fp = self.index('.')
+        sp = self.index('.',fp+1)
+        return self[sp+1:self.index('.',sp+1)]
+    def get_log_down(self):
+        fp = self.index('.')
+        sp = self.index('.',fp+1)
+        return self[self.index('.',sp+1)+1:]
     def is_up(self):
-        return self.unixtime_down == '' and self.log_down == ''
+        return self.get_unixtime_down() == '' and self.get_log_down() == ''
     def is_down(self):
         return not self.is_up()
-    def __str__(self):
-        return f'{self.unixtime_up}.{self.unixtime_down}.{self.log_up}.{self.log_down}'
-    def __eq__(self, other):
-        return str(self) == str(other)
 
 class Element:
 
