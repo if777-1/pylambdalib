@@ -2,6 +2,7 @@
 Basic library for Lambda Solution Python operations.
 
 Instalation:
-  On the pylambdalib root directory use "pip install ."
+  1. Copy the clone https url
+  2. run this command on the console: pip install git+<url>
 To use:
   simply use the module "elements" within the package.
