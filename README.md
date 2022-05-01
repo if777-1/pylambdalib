@@ -1,7 +1,7 @@
 # pylambdalib
 Basic library for Lambda Solution Python operations.
 
-Instalation:
+Installation:
   1. Copy the clone https url
   2. run this command on the console: <pre>pip install git+https://github.com/thcabrera/pylambdalib.git</pre>
   
