@@ -54,6 +54,9 @@ class Unixtime(str):
         fp = self.index('.')
         sp = self.index('.',fp+1)
         return self[self.index('.',sp+1)+1:]
+    def set_down(self,unixtime_down,log_down):
+        return self.get_unixtime_up() + "." + unixtime_down + "." + \
+               self.get_log_up() + "." + log_down
     def is_up(self):
         return self.get_unixtime_down() == '' and self.get_log_down() == ''
     def is_down(self):
@@ -124,6 +127,9 @@ class ElementValue(ABC,str):
         return str.__new__(cls, check_quotes(content))
     def is_up(self):
         return self.get_unixtime().is_up()
+    def set_down(self,unixtime_down,log_down):
+        unixt = self.get_unixtime().set_down(unixtime_down,log_down)
+        return unixt + ":" +self[self.index(':')+1:]
     def get_unixtime(self):
         return Unixtime(self[:self.index(':')])
     def in_conflict(self,other):
@@ -233,9 +239,12 @@ class Geoidx(ElementValue):
 class Sidx(ElementValue):
     def __new__(cls, content, variable=''):
         cls.variable = variable
-        str.__new__(cls,content)
+        return str.__new__(cls,content)
     def __init__(self, content='',variable=''):
         self.variable = variable
+    def set_down(self,unixtime_down,log_down):
+        unixt = self.get_unixtime().set_down(unixtime_down,log_down)
+        return self.get_value() + ":" + unixt + ":" + self.get_key()
     def get_unixtime(self):
         colon1 = self.index(':')
         colon2 = self.index(':',colon1+1)
@@ -243,7 +252,7 @@ class Sidx(ElementValue):
     def get_value(self):
         return self[:self.index(':')]
     def get_variable(self):
-        pass
+        return self.variable
     def get_key(self):
         colon1 = self.index(':')
         colon2 = self.index(':',colon1+1)
