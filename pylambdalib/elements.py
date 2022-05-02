@@ -175,9 +175,9 @@ class V(ElementValue):
         colon = self.index(':')
         fp = self.index('|')
         sp = self.index('|',fp+1)
-        latitude = float(self[colon+1:fp])
-        longitude = float(self[fp+1:sp])
-        return latitude, longitude
+        longitude = float(self[colon+1:fp])
+        latitude = float(self[fp+1:sp])
+        return longitude, latitude
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.get_vertex_num() == other.get_vertex_num()
     def get_point(self):
@@ -225,7 +225,7 @@ class Geoidx(ElementValue):
         fp = self.index('|')
         sp = self.index('|',fp+1)
         return int(self[sp+1:])
-    def set_coordinates(self,long,lat):
+    def set_coordinates(self,lat,long):
         self.latitude = lat
         self.longitude = long
     def get_coordinates(self):
@@ -233,7 +233,7 @@ class Geoidx(ElementValue):
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.get_vertex_num() == other.get_vertex_num()
     def coordinates_to_str(self):
-        return f'{self.longitude} {self.latitude}'
+        return f'{self.latitude} {self.longitude}'
 
 # T2 F26 C3:1648582761..31590.:106.1.100032
 class Sidx(ElementValue):
