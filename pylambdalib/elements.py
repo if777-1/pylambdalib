@@ -127,6 +127,8 @@ class ElementValue(ABC,str):
         return str.__new__(cls, check_quotes(content))
     def is_up(self):
         return self.get_unixtime().is_up()
+    def is_down(self):
+        return self.get_unixtime().is_down()
     def set_down(self,unixtime_down,log_down):
         unixt = self.get_unixtime().set_down(unixtime_down,log_down)
         return unixt + ":" +self[self.index(':')+1:]
