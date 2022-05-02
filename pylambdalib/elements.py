@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from shapely.geometry import Polygon, Point
 
 class Key(str):
@@ -71,7 +71,7 @@ class Element:
         self.co = ValueGroup()
         self.io = ValueGroup()
     def set_key(self,s):
-        self.key.parse(s)
+        self.key = Key(s)
     def get_ocfg(self):
         return list(filter(lambda x: x.is_up(),self.ocfg))[0]
     def is_connected_to(self,other):
@@ -119,21 +119,15 @@ class ValueGroup(list):
             s+=str(member)+"\n"
         return s
 
-class ElementValue(ABC):
-    def __init__(self):
-        self.unixtime = Unixtime()
+class ElementValue(ABC,str):
+    def __new__(cls, content):
+        return str.__new__(cls, check_quotes(content))
     def is_up(self):
-        return self.unixtime.is_up()
+        return self.get_unixtime().is_up()
+    def get_unixtime(self):
+        return Unixtime(self[:self.index(':')])
     def in_conflict(self,other):
         return self.is_up() and other.is_up()
-    @abstractmethod
-    def parse(self,s):
-        pass
-    def __eq__(self, other):
-        return str(self) == str(other)
-    @abstractmethod
-    def __str__(self):
-        pass
 
 def check_quotes(s):
     s = s.replace('"', '')
@@ -141,173 +135,134 @@ def check_quotes(s):
     s = s.replace("\t", "")
     return s
 
+# 1648490054..1.:@oStyle|#msn_ylw-pushpin412|0
 class Val(ElementValue):
-    def __init__(self,s=''):
-        super(Val, self).__init__()
-        self.var = ''
-        self.val = ''
-        if s != '':
-            self.parse(s)
-    def parse(self,s):
-        s = check_quotes(s)
-        colon = s.index(':')
-        fp = s.index('|')
-        sp = s.index('|',fp+1)
-        self.unixtime.parse(s[:colon])
-        self.var = s[colon+1:fp]
-        self.val = s[fp+1:sp]
+    def get_variable(self):
+        return self[self.index(':')+1:self.index('|')]
+    def get_value(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        return self[fp + 1:sp]
     def in_conflict(self,other):
-        return self.is_up() and other.is_up() and self.var == other.var
-    def __str__(self):
-        return f'{self.unixtime}:{self.var}|{self.val}|0'
+        return self.is_up() and other.is_up() and self.get_variable() == other.get_variable()
 
+# 1648490054..1.:a/zona
 class Ocfg(ElementValue):
-    def __init__(self,s=''):
-        super(Ocfg, self).__init__()
-        self.path = ''
-        if s != '':
-            self.parse(s)
-    def parse(self,s):
-        s = check_quotes(s)
-        colon = s.index(':')
-        self.unixtime.parse(s[:colon])
-        self.path = s[colon+1:]
-    def __str__(self):
-        return f'{self.unixtime}:{self.path}'
+    def get_path(self):
+        return self[self.index(':') + 1:]
+    def set_path(self,new_path):
+        return self.get_unixtime() + ":" + new_path
 
+# 1618489855.1618489873.17186.17188:-30.77093347|-57.96592712|0|0.0
 class V(ElementValue):
-    def __init__(self,s=''):
-        super(V, self).__init__()
-        self.n = None
-        self.last_num = 0.0
-        self.latitude = None
-        self.longitude = None
-        if s != '':
-            self.parse(s)
-    def parse(self,s):
-        s = check_quotes(s)
-        colon = s.index(':')
-        fp = s.index('|')
-        sp = s.index('|',fp+1)
-        tp = s.index('|',sp+1)
-        self.unixtime.parse(s[:colon])
-        self.latitude = float(s[colon+1:fp])
-        self.longitude = float(s[fp+1:sp])
-        self.n = int(s[sp+1:tp])
-        self.last_num = float(s[tp+1:])
+    def get_last_num(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        tp = self.index('|',sp+1)
+        return float(self[tp+1:])
+    def get_vertex_num(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        tp = self.index('elf|',sp+1)
+        return int(self[sp+1:tp])
+    def get_coordinates(self):
+        colon = self.index(':')
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        latitude = float(self[colon+1:fp])
+        longitude = float(self[fp+1:sp])
+        return latitude, longitude
     def in_conflict(self,other):
-        return self.is_up() and other.is_up() and self.n == other.n
+        return self.is_up() and other.is_up() and self.get_vertex_num() == other.get_vertex_num()
     def get_point(self):
-        return Point(self.latitude,self.longitude)
-    def __str__(self):
-        return f'{self.unixtime}:{self.latitude}|{self.longitude}|{self.n}|{self.last_num}'
+        lat, long = self.get_coordinates()
+        return Point(lat,long)
 
+# 1650371152..32902.:106.100.100010"
 class IO(ElementValue):
-    def __init__(self,s=''):
-        super(IO, self).__init__()
-        self.other_key = Key()
-        if s != '':
-            self.parse(s)
-    def parse(self,s):
-        s = check_quotes(s)
-        colon = s.index(':')
-        self.unixtime.parse(s[:colon])
-        self.other_key = Key(s[colon+1:])
+    def get_other_key(self):
+        return Key(self[self.index(':')+1:])
     def in_conflict(self,other):
-        self.is_up() and other.is_up and self.other_key == other.other_key
-    def __str__(self):
-        return f'{self.unixtime}:{self.other_key}'
+        self.is_up() and other.is_up and self.get_other_key() == other.get_other_key()
 
+# 1618489855.1618489873.17186.17188:106.1.100001
 class Co(ElementValue):
-    def __init__(self,s=''):
-        super(Co, self).__init__()
-        self.other_key = Key()
-        self.conn_num_1 = None
-        self.conn_num_2 = None
-        if s != '':
-            self.parse(s)
-    def parse(self,s):
-        s = check_quotes(s)
-        colon = s.index(':')
-        fp = s.index('|')
-        sp = s.index('|',fp+1)
-        self.unixtime.parse(s[:colon])
-        self.conn_num_1 = int(s[colon+1:fp])
-        self.other_key = Key(s[fp+1:sp])
-        self.conn_num_2 = int(s[sp+1:])
+    def get_con_num1(self):
+        return int(self[self.index(':')+1:self.index('|')])
+    def get_con_num2(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        return int(self[sp+1:])
+    def get_other_key(self):
+        fp = self.index('|')
+        sp = self.index('|', fp + 1)
+        return Key(self[fp + 1:sp])
     def in_conflict(self,other):
-        return self.is_up() and other.is_up() and self.other_key == other.other_key
-    def __str__(self):
-        return f'{self.unixtime}:{self.other_key}'
+        return self.is_up() and other.is_up() and self.get_other_key() == other.get_other_key()
 
+# 1618489855.1618489873.17186.17188:106.1.100000|0|1
 class Geoidx(ElementValue):
-    def __init__(self,s='',latitude = None, longitude = None):
-        super(Geoidx, self).__init__()
-        self.key = Key()
-        self.n = None
-        self.n_max = None
-        self.latitude = latitude
-        self.longitude = longitude
-        if s != '':
-            self.parse(s)
-    def parse(self,s):
-        s = check_quotes(s)
-        colon = s.index(':')
-        fp = s.index('|')
-        sp = s.index('|',fp+1)
-        self.unixtime.parse(s[:colon])
-        self.key.parse(s[colon+1:fp])
-        self.n = int(s[fp+1:sp])
-        self.n_max = int(s[sp+1:])
+    def __new__(cls, value='',lat = '',long=''):
+        cls.latitude = lat
+        cls.longitude = long
+        return str.__new__(cls, value)
+    def __init__(self,content='',lat = '',long=''):
+        self.latitude = lat
+        self.longitude = long
+    def get_key(self):
+        return Key(self[self.index(':') + 1:self.index('|')])
+    def get_vertex_num(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        return int(self[fp+1:sp])
+    def get_vertex_total(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        return int(self[sp+1:])
     def set_coordinates(self,long,lat):
-        self.latitude = float(lat)
-        self.longitude = float(long)
+        self.latitude = lat
+        self.longitude = long
+    def get_coordinates(self):
+        return self.latitude,self.longitude
     def in_conflict(self,other):
-        return self.is_up() and other.is_up() and self.n == other.n
-    def __str__(self):
-        return f'{self.unixtime}:{self.key}|{self.n}|{self.n_max}'
+        return self.is_up() and other.is_up() and self.get_vertex_num() == other.get_vertex_num()
     def coordinates_to_str(self):
         return f'{self.longitude} {self.latitude}'
 
+# T2 F26 C3:1648582761..31590.:106.1.100032
 class Sidx(ElementValue):
-    def __init__(self, s=''):
-        super(Sidx, self).__init__()
-        self.value = ''
-        self.key = Key()
-        self.company_id = ''
-        self.variable = ''
-        if s != '':
-            self.parse(s)
-
+    def __new__(cls, content, variable=''):
+        cls.variable = variable
+        str.__new__(cls,content)
+    def __init__(self, content='',variable=''):
+        self.variable = variable
+    def get_unixtime(self):
+        colon1 = self.index(':')
+        colon2 = self.index(':',colon1+1)
+        return Unixtime(self[colon1+1:colon2])
+    def get_value(self):
+        return self[:self.index(':')]
+    def get_variable(self):
+        pass
+    def get_key(self):
+        colon1 = self.index(':')
+        colon2 = self.index(':',colon1+1)
+        return Key(self[colon2+1:])
     def parse_sidx_key(self,s):
         fp = s.index('.')
         sp = s.index('.',fp+1)
-        self.company_id = s[:fp]
         self.variable = s[fp+1:sp]
-
     def get_sidx_key(self):
-        return f'{self.company_id}.{self.variable}.sidx'
-
-    def parse(self, s):
-        s = check_quotes(s)
-        colon1 = s.index(':')
-        colon2 = s.index(':',colon1+1)
-        self.value = s[:colon1]
-        self.unixtime.parse(s[colon1+1:colon2])
-        self.key.parse(s[colon2+1:])
-
+        return f'{self.get_key().get_company_id()}.{self.variable}.sidx'
     def in_conflict(self, other):
-        return self.is_up() and other.is_up() and self.key == other.key
-
-    def __str__(self):
-        return f'{self.value}:{self.unixtime}:{self.key}'
+        return self.is_up() and other.is_up() and self.get_key() == other.get_key() \
+               and self.variable == other.variable
 
 class LambdaError(Exception):
     pass
 class ValuesInConflictError(LambdaError):
     def __init__(self, value):
         self.value = value
-
     def __str__(self):
         return f'You cannot add a value that gets in conflict with another already added: {self.value}'
 
