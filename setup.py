@@ -2,9 +2,9 @@ from setuptools import find_packages
 from setuptools import setup
 setup(
 name='pylambdalib',
-version='1.0.0',
+version='1.1',
 description='Python package for Lambda Solution operations',
-url='#',
+url='https://github.com/thcabrera/pylambdalib',
 author='Thiago Cabrera Lavezzi',
 author_email='thiagomartincabreralavezzi@gmail.com',
 license='Lambda Solution',
