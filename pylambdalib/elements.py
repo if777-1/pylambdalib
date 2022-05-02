@@ -55,8 +55,8 @@ class Unixtime(str):
         sp = self.index('.',fp+1)
         return self[self.index('.',sp+1)+1:]
     def set_down(self,unixtime_down,log_down):
-        return self.get_unixtime_up() + "." + unixtime_down + "." + \
-               self.get_log_up() + "." + log_down
+        return self.get_unixtime_up() + "." + str(unixtime_down) + "." + \
+               self.get_log_up() + "." + str(log_down)
     def is_up(self):
         return self.get_unixtime_down() == '' and self.get_log_down() == ''
     def is_down(self):
