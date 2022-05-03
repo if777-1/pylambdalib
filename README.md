@@ -8,4 +8,5 @@ To update:
 <pre>pip install --upgrade git+https://github.com/thcabrera/pylambdalib.git</pre>
 
 To use:
-  simply use the module "elements" within the package.
+  - If you want to use the elements as _str_, use the module _elements_.
+  - If you want to use the elements as objects with their own attributes, use the module _element_objects_.
