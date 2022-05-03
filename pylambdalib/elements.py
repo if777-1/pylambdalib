@@ -123,7 +123,7 @@ class ValueGroup(list):
         return s
 
 class ElementValue(ABC,str):
-    def __new__(cls, content):
+    def __new__(cls, content=''):
         return str.__new__(cls, check_quotes(content))
     def is_up(self):
         return self.get_unixtime().is_up()
