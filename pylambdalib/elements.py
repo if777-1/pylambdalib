@@ -16,15 +16,10 @@ class Key(str):
         return Key(self[:self.index('.',self.index('.')+1)] + "." + str(object_id))
     def get_geoidx_key(self):
         return self[:self.index('.',self.index('.')+1)]+':geoidx'
-    def __gd__(self,other):
-        o_id = int(self.get_object_id())
-        o_o_id = int(other.get_object_id())
-        if o_id > o_o_id:
-            return True
-        else:
-            return False
-    def __ld__(self,other):
-        return not self.__gd__(other)
+    def __gt__(self,other):
+        return int(self.get_object_id()) > int(other.get_object_id())
+    def __lt__(self,other):
+        return not self.__gt__(other)
 
 class Unixtime(str):
     def get_unixtime_up(self):
