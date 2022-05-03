@@ -248,8 +248,8 @@ class Geoidx(ElementValue):
         sp = self.index('|',fp+1)
         return int(self[sp+1:])
     def set_coordinates(self,lat,long):
-        self.latitude = lat
-        self.longitude = long
+        self.latitude = float(lat)
+        self.longitude = float(long)
     def get_coordinates(self):
         return self.latitude,self.longitude
     def in_conflict(self,other):
