@@ -171,7 +171,7 @@ class V(ElementValue):
     def get_vertex_num(self):
         fp = self.index('|')
         sp = self.index('|',fp+1)
-        tp = self.index('elf|',sp+1)
+        tp = self.index('|',sp+1)
         return int(self[sp+1:tp])
     def get_coordinates(self):
         colon = self.index(':')
