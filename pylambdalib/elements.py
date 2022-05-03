@@ -211,7 +211,7 @@ class V(ElementValue):
         if vertex_num is None:
             vertex_num = self.get_vertex_num()
         return V(Unixtime(unixtime) + ":" + str(longitude) + "|" + str(latitude)
-                   + "|" + str(vertex_num) + "|" + str(vertex_num))
+                   + "|" + str(vertex_num) + "|" + str(last_num))
 
 # 1650371152..32902.:106.100.100010"
 class IO(ElementValue):
