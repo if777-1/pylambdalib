@@ -162,7 +162,7 @@ class Val(ElementValue):
             variable = self.get_variable()
         if value is None:
             value = self.get_value()
-        return Unixtime(unixtime) + ":" + str(variable) + "|" + str(value) + "|" + str(n)
+        return Val(Unixtime(unixtime) + ":" + str(variable) + "|" + str(value) + "|" + str(n))
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.get_variable() == other.get_variable()
 
