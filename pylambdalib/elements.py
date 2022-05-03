@@ -172,6 +172,12 @@ class Ocfg(ElementValue):
         return self[self.index(':') + 1:]
     def set_path(self,new_path):
         return self.get_unixtime() + ":" + new_path
+    def set(self,unixtime = None,path = None):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if path is None:
+            path = self.get_path()
+        return Ocfg(Unixtime(unixtime) + ":" + str(path))
 
 # 1618489855.1618489873.17186.17188:-30.77093347|-57.96592712|0|0.0
 class V(ElementValue):
@@ -197,6 +203,15 @@ class V(ElementValue):
     def get_point(self):
         lat, long = self.get_coordinates()
         return Point(lat,long)
+    def set(self,unixtime=None,longitude=None,latitude=None,vertex_num=None,last_num = '0.0'):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if longitude is None and latitude is None:
+            longitude, latitude = self.get_coordinates()
+        if vertex_num is None:
+            vertex_num = self.get_vertex_num()
+        return V(Unixtime(unixtime) + ":" + str(longitude) + "|" + str(latitude)
+                   + "|" + str(vertex_num) + "|" + str(vertex_num))
 
 # 1650371152..32902.:106.100.100010"
 class IO(ElementValue):
@@ -204,6 +219,12 @@ class IO(ElementValue):
         return Key(self[self.index(':')+1:])
     def in_conflict(self,other):
         self.is_up() and other.is_up and self.get_other_key() == other.get_other_key()
+    def set(self,unixtime=None,other_key=None):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if other_key is None:
+            other_key = self.get_other_key()
+        return IO(Unixtime(unixtime) + ":" + Key(other_key))
 
 # 1618489855.1618489873.17186.17188:106.1.100001
 class Co(ElementValue):
@@ -219,6 +240,12 @@ class Co(ElementValue):
         return Key(self[fp + 1:sp])
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.get_other_key() == other.get_other_key()
+    def set(self,unixtime=None,n1='0',other_key=None,n2='0'):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if other_key is None:
+            other_key = self.get_other_key()
+        return Co(Unixtime(unixtime) + ":" + str(n1) + "|" + Key(other_key) + "|" + str(n2))
 
 # 1618489855.1618489873.17186.17188:106.1.100000|0|1
 class Geoidx(ElementValue):
@@ -248,6 +275,16 @@ class Geoidx(ElementValue):
         return self.is_up() and other.is_up() and self.get_vertex_num() == other.get_vertex_num()
     def coordinates_to_str(self):
         return f'{self.latitude} {self.longitude}'
+    def set(self,unixtime=None,vertex_num=None,vertex_total=None,key=None):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if vertex_num is None:
+            vertex_num = self.get_vertex_num()
+        if vertex_total is None:
+            vertex_total = self.get_vertex_total()
+        if key is None:
+            key = self.get_key()
+        return Geoidx(Unixtime(unixtime) + ":" + Key(key) + "|" + str(vertex_num) + "|" + str(vertex_total))
 
 # T2 F26 C3:1648582761..31590.:106.1.100032
 class Sidx(ElementValue):
@@ -280,6 +317,14 @@ class Sidx(ElementValue):
     def in_conflict(self, other):
         return self.is_up() and other.is_up() and self.get_key() == other.get_key() \
                and self.variable == other.variable
+    def set(self,unixtime=None,key=None,value=None):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if value is None:
+            value = self.get_value()
+        if key is None:
+            key = self.get_key()
+        return Sidx(str(value) + ":" + Unixtime(unixtime) + ":" + Key(key))
 
 class LambdaError(Exception):
     pass
