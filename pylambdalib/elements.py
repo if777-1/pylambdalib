@@ -17,26 +17,12 @@ class Key(str):
     def get_geoidx_key(self):
         return self[:self.index('.',self.index('.')+1)]+':geoidx'
     def __gd__(self,other):
-        c_id = self.get_company_id()
-        o_c_id = other.get_company_id()
-        if c_id > o_c_id:
+        o_id = int(self.get_object_id())
+        o_o_id = int(other.get_object_id())
+        if o_id > o_o_id:
             return True
-        elif c_id < o_c_id:
-            return False
         else:
-            n_id = int(self.get_network_id())
-            o_n_id = int(other.get_network_id())
-            if n_id > o_n_id:
-                return True
-            elif n_id < o_n_id:
-                return False
-            else:
-                o_id = int(self.get_object_id())
-                o_o_id = int(other.get_object_id())
-                if o_id > o_o_id:
-                    return True
-                else:
-                    return False
+            return False
     def __ld__(self,other):
         return not self.__gd__(other)
 
