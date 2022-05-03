@@ -151,6 +151,18 @@ class Val(ElementValue):
         fp = self.index('|')
         sp = self.index('|',fp+1)
         return self[fp + 1:sp]
+    def get_n(self):
+        fp = self.index('|')
+        sp = self.index('|',fp+1)
+        return self[sp+1:]
+    def set(self,unixtime=None,variable=None,value=None,n='0'):
+        if unixtime is None:
+            unixtime = self.get_unixtime()
+        if variable is None:
+            variable = self.get_variable()
+        if value is None:
+            value = self.get_value()
+        return Unixtime(unixtime) + ":" + str(variable) + "|" + str(value) + "|" + str(n)
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.get_variable() == other.get_variable()
 
