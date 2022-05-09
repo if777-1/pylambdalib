@@ -15,7 +15,8 @@ install_requires=['shapely',
                   'zipfile',
                   'simplekml',
                   'pyrebase',
-                  'redis' # only for LINUX],
+                  'redis' # only for LINUX
+                  ],
 packages=find_packages(),
 zip_safe=False
 )
