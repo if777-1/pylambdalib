@@ -6,7 +6,7 @@ required_packages = ['shapely', # for shapes
                      'scipy', # for search trees
                      'ezdxf', # for DXF files
                      'simplekml', # for kml files
-                     'pyrebase', # to connect to firebase
+                     'pyrebase4', # to connect to firebase
                      ]
 
 linux_only = ['redis', # to connect to redis
