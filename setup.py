@@ -1,5 +1,21 @@
 from setuptools import find_packages
 from setuptools import setup
+import platform
+
+required_packages = ['shapely', # for shapes
+                     'scipy', # for search trees
+                     'ezdxf', # for DXF files
+                     'zipfile', # for zip files
+                     'simplekml', # for kml files
+                     'pyrebase', # to connect to firebase
+                     ]
+
+linux_only = ['redis', # to connect to redis
+              ]
+
+if platform.system() == "Linux":
+    required_packages.extend(linux_only)
+
 setup(
 name='pylambdalib',
 version='1.2.4.4',
@@ -8,15 +24,8 @@ url='https://github.com/thcabrera/pylambdalib',
 author='Thiago Cabrera Lavezzi',
 author_email='thiagomartincabreralavezzi@gmail.com',
 license='Lambda Solution',
-install_requires=['shapely',
-                  'scipy',
-                  'pyshp',
-                  'ezdxf',
-                  'zipfile',
-                  'simplekml',
-                  'pyrebase',
-                  'redis' # only for LINUX
-                  ],
+install_requires=required_packages,
 packages=find_packages(),
 zip_safe=False
 )
+
