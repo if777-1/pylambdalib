@@ -5,7 +5,6 @@ import platform
 required_packages = ['shapely', # for shapes
                      'scipy', # for search trees
                      'ezdxf', # for DXF files
-                     'zipfile', # for zip files
                      'simplekml', # for kml files
                      'pyrebase', # to connect to firebase
                      ]
