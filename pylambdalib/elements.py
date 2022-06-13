@@ -22,6 +22,13 @@ class Key(str):
         return not self.__gt__(other)
 
 class Unixtime(str):
+
+    def __new__(cls, value='', unixtime_up = '', unixtime_down= '', log_up = '', log_down = ''):
+        if unixtime_up != '' and log_up != '':
+            return str.__new__(cls,f"{unixtime_up}.{unixtime_down}.{log_up}.{log_down}")
+        return str.__new__(cls,value)
+    def __init__(self, value='',unixtime_up = '', unixtime_down= '', log_up = '', log_down = ''):
+        pass
     def get_unixtime_up(self):
         return self[:self.index('.')]
     def get_unixtime_down(self):
