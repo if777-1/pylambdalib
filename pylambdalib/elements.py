@@ -45,6 +45,8 @@ class Unixtime(str):
     def set_down(self,unixtime_down,log_down):
         return self.get_unixtime_up() + "." + str(int(unixtime_down)) + "." + \
                self.get_log_up() + "." + str(int(log_down))
+    def set_up(self):
+        return self.get_unixtime_up() + ".." + self.get_log_up() + "."
     def is_up(self):
         return self.get_unixtime_down() == '' and self.get_log_down() == ''
     def is_down(self):
