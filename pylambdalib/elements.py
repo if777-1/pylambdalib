@@ -75,7 +75,8 @@ class Element:
         ordered_vertices = {}
         for vertice in self.v:
             if vertice.is_up():
-                ordered_vertices[vertice.n] = [vertice.latitude,vertice.longitude]
+                latitude, longitude = vertice.get_coordinates()
+                ordered_vertices[vertice.n] = [latitude,longitude]
         vertices = []
         for vertice in sorted(ordered_vertices):
             vertices.append(ordered_vertices[vertice])
@@ -120,6 +121,9 @@ class ElementValue(ABC,str):
     def is_down(self):
         return self.get_unixtime().is_down()
     def set_down(self,unixtime_down,log_down):
+        unixt = self.get_unixtime().set_down(unixtime_down,log_down)
+        return unixt + ":" +self[self.index(':')+1:]
+    def set_up(self,unixtime_down,log_down):
         unixt = self.get_unixtime().set_down(unixtime_down,log_down)
         return unixt + ":" +self[self.index(':')+1:]
     def get_unixtime(self):
