@@ -76,7 +76,7 @@ class Element:
         for vertice in self.v:
             if vertice.is_up():
                 latitude, longitude = vertice.get_coordinates()
-                ordered_vertices[vertice.n] = [latitude,longitude]
+                ordered_vertices[vertice.get_vertex_num()] = [latitude,longitude]
         vertices = []
         for vertice in sorted(ordered_vertices):
             vertices.append(ordered_vertices[vertice])
