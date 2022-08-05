@@ -16,7 +16,7 @@ if platform.system() == "Linux":
 
 setup(
 name='pylambdalib',
-version='1.2.4.10',
+version='1.3',
 description='Python package for Lambda Solution operations',
 url='https://github.com/thcabrera/pylambdalib',
 author='Thiago Cabrera Lavezzi',

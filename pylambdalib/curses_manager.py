@@ -1,14 +1,95 @@
 import curses
 
-class CursesManager:
+class CursesHandler:
+    def __init__(self,stdscr):
+        self.stdscr = stdscr
 
-    def __init__(self, menu=None):
-        if menu is None:
-            menu = {}
-        self.menu = menu
-        curses.wrapper(self.start)
+    def clear_screen(self):
+        self.stdscr.clear()
+        self.stdscr.refresh()
 
-    def start(self,stdscr):
+    def wait_for_input(self):
+        self.stdscr.getch()
+
+    def rewrite_line(self, text):
+        self.stdscr.addstr("\r"+text)
+        self.stdscr.refresh()
+
+    def println(self,text):
+        self.stdscr.addstr(text+"\n")
+        self.stdscr.refresh()
+
+    def choice_input(self,initial_text,menu):
+        curses.curs_set(0)
+        # color scheme for selected row
+        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+
+        # specifies the current selected row
+        current_column = 0
+        self.println(initial_text)
+        self.print_choice_input(current_column,menu)
+        while True:
+            key = self.stdscr.getch()
+
+            if key == curses.KEY_LEFT:
+                if current_column == 0:
+                    current_column = len(menu)-1
+                else:
+                    current_column -= 1
+            elif key == curses.KEY_RIGHT:
+                if current_column == len(menu)-1:
+                    current_column = 0
+                else:
+                    current_column += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                self.stdscr.addstr('\n')
+                return menu[current_column]
+            self.print_choice_input(current_column,menu)
+
+    def print_choice_input(self, selected_column_idx,menu):
+        self.rewrite_line('')
+        for idx, row in enumerate(menu):
+            count = sum(map(lambda a:len(a)+2,menu[:idx]))
+            self.stdscr.refresh()
+            y,_ = self.stdscr.getyx()
+            x = 2 + count
+            if idx == selected_column_idx:
+                self.stdscr.attron(curses.color_pair(1))
+                self.stdscr.addstr(y, x, row)
+                self.stdscr.attroff(curses.color_pair(1))
+            else:
+                self.stdscr.addstr(y, x, row)
+        self.stdscr.refresh()
+
+    def general_input(self,input_message,default,acceptance_condition):
+        curses.curs_set(1)
+        self.stdscr.addstr(input_message)
+        d = str(default)
+        self.stdscr.addstr(d)
+        self.stdscr.refresh()
+        c = self.stdscr.getkey()
+        while c != '\n':
+            if acceptance_condition(c):
+                self.stdscr.addstr(c)
+                d += c
+            # if there is nothing else to erase, don't erase anything
+            elif c == 'KEY_BACKSPACE' and len(d)>0:
+                self.stdscr.addstr('\b')
+                self.stdscr.addstr(' ')
+                self.stdscr.addstr('\b')
+                d = d[:-1]
+            c = self.stdscr.getkey()
+        self.stdscr.addstr('\n')
+        curses.curs_set(0)
+        return d
+
+    def str_input(self,input_message,default=''):
+        return self.general_input(input_message,default,lambda x:len(x) == 1)
+
+    def numeric_input(self,input_message,default=''):
+        return self.general_input(input_message,default,lambda x: x.isdigit())
+
+    def main_menu(self,txt,menu, select_handler):
         # turn off cursor blinking
         curses.curs_set(0)
         # color scheme for selected row
@@ -17,59 +98,76 @@ class CursesManager:
         # specify the current selected row
         current_row = 0
         # print the menu
-        self.print_menu(stdscr, current_row)
-
-        while 1:
-            key = stdscr.getch()
+        self.print_menu(current_row,txt,menu)
+        while True:
+            key = self.stdscr.getch()
 
             if key == curses.KEY_UP:
                 if current_row == 0:
-                    current_row = len(self.menu) - 1
+                    current_row = len(menu) - 1
                 else:
                     current_row -= 1
             elif key == curses.KEY_DOWN:
-                if current_row == len(self.menu) - 1:
+                if current_row == len(menu) - 1:
                     current_row = 0
                 else:
                     current_row += 1
             elif key == curses.KEY_ENTER or key in [10, 13]:
-                self.print_select(stdscr, current_row)
-                stdscr.getch()
-                # if user selected last row, exit the program
-                if current_row == len(self.menu) - 1:
-                    break
+                self.clear_screen()
+                self.stdscr.refresh()
+                self.print_select(current_row, select_handler)
+            self.print_menu(current_row,txt,menu)
+            self.stdscr.refresh()
 
-            self.print_menu(stdscr, current_row)
+    def menu(self,txt,menu):
+        # turn off cursor blinking
+        curses.curs_set(0)
+        # color scheme for selected row
+        curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
 
-    def print_menu(self,stdscr, selected_row_idx):
-        stdscr.clear()
-        stdscr.addstr("Redis Tools v1.0: \n")
-        for idx, row in enumerate(self.menu):
+        # specify the current selected row
+        current_row = 0
+        # print the menu
+        self.print_menu(current_row,txt,menu)
+        while True:
+            key = self.stdscr.getch()
+
+            if key == curses.KEY_UP:
+                if current_row == 0:
+                    current_row = len(menu) - 1
+                else:
+                    current_row -= 1
+            elif key == curses.KEY_DOWN:
+                if current_row == len(menu) - 1:
+                    current_row = 0
+                else:
+                    current_row += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                self.clear_screen()
+                self.stdscr.refresh()
+                return current_row
+            self.print_menu(current_row,txt,menu)
+            self.stdscr.refresh()
+
+    def print_menu(self, selected_row_idx,txt,menu):
+        self.stdscr.clear()
+        self.println(txt)
+        for idx, row in enumerate(menu):
             x = 0
-            y = len(self.menu) // 2 + idx
+            y = 2 + idx
             if idx == selected_row_idx:
-                stdscr.attron(curses.color_pair(1))
-                stdscr.addstr(y, x, row)
-                stdscr.attroff(curses.color_pair(1))
+                self.stdscr.attron(curses.color_pair(1))
+                self.stdscr.addstr(y, x, row)
+                self.stdscr.attroff(curses.color_pair(1))
             else:
-                stdscr.addstr(y, x, row)
-        stdscr.refresh()
+                self.stdscr.addstr(y, x, row)
+        self.stdscr.refresh()
 
-    def print_select(self,stdscr, current_row):
-        stdscr.clear()
-        stdscr.addstr(self.menu[current_row] + ":\n")
-        stdscr.refresh()
-
-c = CursesManager(menu = ['Generar txt para cambiar id de companias',
-        'ID maximo',
-        'IDs usados',
-        'Eliminar val',
-        'Generar DXF',
-        'Generar KMZ',
-        'Dar de alta compania',
-        'Dar de alta usuarios',
-        'Consultar usuarios',
-        'Verificar base de datos',
-        'Cambiar configuracion',
-        'Salir'
-        ])
+    # una vez que se selecciona una de las opciones, se llama a la funcion pasada
+    # y se le pasa por parametro la fila elegida
+    def print_select(self,current_row, select_handler):
+        self.stdscr.clear()
+        self.stdscr.refresh()
+        self.stdscr.scrollok(True)
+        select_handler(current_row)
+        self.stdscr.refresh()
