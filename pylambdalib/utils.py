@@ -1,6 +1,6 @@
 from redis import Redis
 from redis import ConnectionError
-from element_objects import Val
+from pylambdalib.element_objects import Val
 
 # prueba la conexion, si anda sin problemas la retorna
 def get_connection(host, port):
