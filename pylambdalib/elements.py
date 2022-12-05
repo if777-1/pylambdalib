@@ -234,11 +234,15 @@ class Co(ElementValue):
         return Key(self[fp + 1:sp])
     def in_conflict(self,other):
         return self.is_up() and other.is_up() and self.get_other_key() == other.get_other_key()
-    def set(self,unixtime=None,n1='0',other_key=None,n2='0'):
+    def set(self,unixtime=None,n1=None,other_key=None,n2=None):
         if unixtime is None:
             unixtime = self.get_unixtime()
         if other_key is None:
             other_key = self.get_other_key()
+        if n1 is None:
+            n1 = self.get_con_num1()
+        if n2 is None:
+            n2 = self.get_con_num2()
         return Co(Unixtime(unixtime) + ":" + str(n1) + "|" + Key(other_key) + "|" + str(n2))
 
 # 1618489855.1618489873.17186.17188:106.1.100000|0|1

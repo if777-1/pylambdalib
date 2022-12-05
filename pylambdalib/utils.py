@@ -24,3 +24,32 @@ def get_area_name(db,area_id):
         if val.is_up() and val.var == "@oName":
             return val.val
     return "Unknown area"
+
+def check_quotes(s):
+    s = s.replace('"', '')
+    s = s.replace("'", "")
+    s = s.replace("\t", " ")
+    s = s.replace("\n"," ")
+    s = s.replace("\r", " ")
+    s = s.replace(":", " ")
+    s = s.replace("|", " ")
+    s = s.replace('Á','A')
+    s = s.replace('á','a')
+    s = s.replace('É', 'E')
+    s = s.replace('é', 'e')
+    s = s.replace('Í', 'I')
+    s = s.replace('í', 'i')
+    s = s.replace('Ó', 'O')
+    s = s.replace('ó', 'o')
+    s = s.replace('Ú', 'U')
+    s = s.replace('ú', 'u')
+    s = s.replace('Ñ', 'N')
+    s = s.replace('ñ', 'n')
+    return s
+
+def get_foSide_key(s):
+    return s[s.index('-') + 1:]
+
+# recibe un string del tipo clave:smth y retorna solamente la clave
+def get_key_only(key):
+    return key[:key.index(':')]
