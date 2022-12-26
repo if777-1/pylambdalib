@@ -1,5 +1,6 @@
 from abc import ABC
 from shapely.geometry import Polygon, Point
+from pylambdalib.lambdaexceptions import ElementNotInGroupError, ValuesInConflictError
 
 class Key(str):
     def get_company_id(self):
@@ -323,14 +324,3 @@ class Sidx(ElementValue):
         if key is None:
             key = self.get_key()
         return Sidx(str(value) + ":" + Unixtime(unixtime) + ":" + Key(key))
-
-class LambdaError(Exception):
-    pass
-class ValuesInConflictError(LambdaError):
-    def __init__(self, value):
-        self.value = value
-    def __str__(self):
-        return f'You cannot add a value that gets in conflict with another already added: {self.value}'
-
-class ElementNotInGroupError(LambdaError):
-    pass

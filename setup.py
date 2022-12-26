@@ -7,6 +7,7 @@ required_packages = ['shapely', # for shapes
                      'ezdxf', # for DXF files
                      'simplekml', # for kml files
                      'openpyxl', # for xlxs files
+                     'python-dotenv'
                      ]
 
 linux_only = ['redis', # to connect to redis
@@ -17,7 +18,7 @@ if platform.system() == "Linux":
 
 setup(
 name='pylambdalib',
-version='1.4.1',
+version='1.5',
 description='Python package for Lambda Solution operations',
 url='https://github.com/thcabrera/pylambdalib',
 author='Thiago Cabrera Lavezzi',
