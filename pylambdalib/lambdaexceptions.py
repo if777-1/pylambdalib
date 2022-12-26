@@ -20,3 +20,9 @@ class IncorrectRedisUserOrPassword(LambdaError):
 
     def __str__(self):
         return f'Incorrect redis user or password, please change the .env file.'
+
+class NoPermissionForRedisUser(LambdaError):
+    def __init__(self, user):
+        self.user = user
+    def __str__(self):
+        return f'User "{self.user}" has no permission to use the command.'

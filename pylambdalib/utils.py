@@ -1,7 +1,7 @@
 import redis
-from redis import ConnectionError, ResponseError
+from redis.exceptions import ConnectionError, ResponseError, NoPermissionError
 from pylambdalib.element_objects import Val
-from pylambdalib.lambdaexceptions import EnviromentVariableNotFoundError, IncorrectRedisUserOrPassword
+from pylambdalib.lambdaexceptions import EnviromentVariableNotFoundError, IncorrectRedisUserOrPassword, NoPermissionForRedisUser
 from dotenv import load_dotenv
 import os
 
@@ -29,6 +29,8 @@ def get_connection(host, port, username = None, password = None):
         db.execute_command(auth_command)
         db.ping()
         return db
+    except NoPermissionError:
+        raise NoPermissionForRedisUser(username)
     except ConnectionError:
         return None
     except ResponseError:
