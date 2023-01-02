@@ -1,40 +1,48 @@
 import redis
-from redis.exceptions import ConnectionError, ResponseError, NoPermissionError
+# from redis.exceptions import ConnectionError, ResponseError, NoPermissionError
 from pylambdalib.element_objects import Val
-from pylambdalib.lambdaexceptions import EnviromentVariableNotFoundError, IncorrectRedisUserOrPassword, NoPermissionForRedisUser
-from dotenv import load_dotenv
+# from pylambdalib.lambdaexceptions import EnviromentVariableNotFoundError, IncorrectRedisUserOrPassword, NoPermissionForRedisUser
+# from dotenv import load_dotenv
 import os
 
-USERENV = "REDIS-USER"
-PASSENV = "REDIS-PASSWORD"
-
-# prueba la conexion, si anda sin problemas la retorna
-def get_connection(host, port, username = None, password = None):
-    if username is None or password is None:
-        load_dotenv()
-        username = os.getenv(USERENV)
-        password = os.getenv(PASSENV)
-    if username is None:
-        raise EnviromentVariableNotFoundError(USERENV)
-    if password is None:
-        raise EnviromentVariableNotFoundError(PASSENV)
-    auth_command = f"AUTH {username} {password}"
+def get_connection(host, port):
     try:
-        db = redis.Redis(
-            host=host,
-            port=int(port),
-            decode_responses=True,
-            encoding="ISO-8859-1"
-        )
-        db.execute_command(auth_command)
+        db = redis(host=host, port=int(port), decode_responses=True,encoding="ISO-8859-1")
         db.ping()
         return db
-    except NoPermissionError:
-        raise NoPermissionForRedisUser(username)
     except ConnectionError:
         return None
-    except ResponseError:
-        raise IncorrectRedisUserOrPassword
+
+# USERENV = "REDIS-USER"
+# PASSENV = "REDIS-PASSWORD"
+
+# prueba la conexion, si anda sin problemas la retorna
+# def get_connection(host, port, username = None, password = None):
+#     if username is None or password is None:
+#         load_dotenv()
+#         username = os.getenv(USERENV)
+#         password = os.getenv(PASSENV)
+#     if username is None:
+#         raise EnviromentVariableNotFoundError(USERENV)
+#     if password is None:
+#         raise EnviromentVariableNotFoundError(PASSENV)
+#     auth_command = f"AUTH {username} {password}"
+#     try:
+#         db = redis.Redis(
+#             host=host,
+#             port=int(port),
+#             decode_responses=True,
+#             encoding="ISO-8859-1"
+#         )
+#         db.execute_command(auth_command)
+#         db.ping()
+#         return db
+#     except NoPermissionError:
+#         raise NoPermissionForRedisUser(username)
+#     except ConnectionError:
+#         return None
+#     except ResponseError:
+#         raise IncorrectRedisUserOrPassword
 
 def get_company_name(db, company_id):
     for s_val in db.smembers("0.2."+str(company_id) + ":val"):
