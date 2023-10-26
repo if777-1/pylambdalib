@@ -19,7 +19,7 @@ class EnviromentVariableNotFoundError(LambdaError):
 class IncorrectRedisUserOrPassword(LambdaError):
 
     def __str__(self):
-        return f'Incorrect redis user or password, please change the .env file.'
+        return 'Incorrect redis user or password, please change the .env file.'
 
 class NoPermissionForRedisUser(LambdaError):
     def __init__(self, user):

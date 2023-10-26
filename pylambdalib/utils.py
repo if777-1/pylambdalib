@@ -86,3 +86,19 @@ def get_foSide_key(s):
 # recibe un string del tipo clave:smth y retorna solamente la clave
 def get_key_only(key):
     return key[:key.index(':')]
+
+
+def get_value(db, key, var):
+    for val in db.smembers(key + ":val"):
+        val = Val(val)
+        if not val.is_up() or val.get_variable() != var:
+            continue
+        return val.get_value()
+
+def get_gis_id(db, id_odf):
+    while True:
+        id_nodo = get_value(db ,id_odf, '@io')
+        nodo = id_nodo.split(".")
+        if nodo[1] != "100":
+            return id_nodo
+        id_odf = id_nodo
